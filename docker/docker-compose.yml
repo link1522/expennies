@@ -3,7 +3,7 @@ version: '3.8'
 services:
   app:
     build:
-      context: ""
+      context: ''
       dockerfile: Dockerfile
       args:
         USER_ID: '${WWWUSER:-1000}'
@@ -13,7 +13,7 @@ services:
     restart: always
     working_dir: /var/www/
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     volumes:
       - ../:/var/www
   nginx:
@@ -21,7 +21,7 @@ services:
     container_name: expennies-nginx
     restart: always
     ports:
-      - "8000:80"
+      - '8000:80'
     volumes:
       - ../:/var/www
       - ./nginx:/etc/nginx/conf.d
@@ -34,4 +34,4 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "3306:3306"
+      - '3306:3306'
