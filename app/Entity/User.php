@@ -13,8 +13,13 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 
 #[Entity, Table('users')]
+#[HasLifecycleCallbacks]
 class User {
   #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
   private int $id;
@@ -50,6 +55,15 @@ class User {
    */
   public function getId(): int {
     return $this->id;
+  }
+
+  #[PrePersist, PreUpdate]
+  public function updateTimestamps(LifecycleEventArgs $args) {
+    if (!isset($this->createdAt)) {
+      $this->createdAt = new DateTime();
+    }
+
+    $this->updatedAt = new DateTime();
   }
 
   /**
