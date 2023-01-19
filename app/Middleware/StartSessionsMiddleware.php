@@ -23,6 +23,8 @@ class StartSessionsMiddleware implements MiddlewareInterface
     }
 
     session_save_path(STORAGE_PATH . '/temp');
+    session_set_cookie_params(['secure' => true, 'httponly' => true, 'samesite' => 'Lax']);
+
     session_start();
 
     $response = $handler->handle($request);

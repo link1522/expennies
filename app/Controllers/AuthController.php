@@ -46,8 +46,6 @@ class AuthController
       throw new ValidationException($v->errors());
     }
 
-    exit;
-
     $user = new User();
 
     $user
@@ -59,5 +57,35 @@ class AuthController
     $this->entityManager->flush();
 
     return $response;
+  }
+
+  public function login(Request $request, Response $response): Response
+  {
+    // 1. Validate the request data
+    $data = $request->getParsedBody();
+
+    $v = new Validator($data);
+
+    $v->rule('required', ['email', 'password'])
+      ->rule('email', 'email');
+
+    // 2. Chech the user credentials
+    $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+    if (!$user || password_verify($data['password'], $user->getPassword())) {
+      throw new ValidationException(['password' => ['You have entered an invalid username or password']]);
+    }
+    // 3. Save user id in the session
+
+    session_regenerate_id(); // regenerate session id to prevent session hijacking or session fixation
+
+    $_SESSION['user'] = $user->getId();
+
+    return $response->withHeader('Location', '/')->withStatus(302);
+  }
+
+  public function logout(Request $request, Response $response): Response
+  {
+    return $response->withHeader('Location', '/')->withStatus(302);
   }
 }
