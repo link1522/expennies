@@ -11,17 +11,25 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class ValidationExceptionMiddleware implements MiddlewareInterface {
+class ValidationExceptionMiddleware implements MiddlewareInterface
+{
 
-  public function __construct(private ResponseFactoryInterface $responseFactor) {
+  public function __construct(private ResponseFactoryInterface $responseFactor)
+  {
   }
-  public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+  public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+  {
     try {
       return $handler->handle($request);
     } catch (ValidationException $e) {
       $response = $this->responseFactor->createResponse();
-
       $referer = $request->getServerParams()['HTTP_REFERER'];
+      $oldData = $request->getParsedBody();
+
+      $sensitiveFields = ['password', 'confirmPassword'];
+
+      $_SESSION['errors'] = $e->errors;
+      $_SESSION['old'] = array_diff_key($oldData, array_flip($sensitiveFields));
 
       return $response->withHeader('Location', $referer)->withStatus(302);
     }

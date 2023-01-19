@@ -10,19 +10,24 @@ use App\Exceptions\ValidationException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-class AuthController {
-  public function __construct(private readonly Twig $twig, private readonly EntityManager $entityManager) {
+class AuthController
+{
+  public function __construct(private readonly Twig $twig, private readonly EntityManager $entityManager)
+  {
   }
 
-  public function loginView(Request $request, Response $response): Response {
+  public function loginView(Request $request, Response $response): Response
+  {
     return $this->twig->render($response, 'auth/login.twig');
   }
 
-  public function registerView(Request $request, Response $response): Response {
+  public function registerView(Request $request, Response $response): Response
+  {
     return $this->twig->render($response, 'auth/register.twig');
   }
 
-  public function register(Request $request, Response $response): Response {
+  public function register(Request $request, Response $response): Response
+  {
     $data = $request->getParsedBody();
 
     $v = new Validator($data);
