@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Contracts\UserInterface;
 use DateTime;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
@@ -20,7 +21,8 @@ use Doctrine\ORM\Mapping\PreUpdate;
 
 #[Entity, Table('users')]
 #[HasLifecycleCallbacks]
-class User {
+class User implements UserInterface
+{
   #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
   private int $id;
 
@@ -45,7 +47,8 @@ class User {
   #[OneToMany(mappedBy: 'user', targetEntity: Category::class)]
   private Collection $categories;
 
-  public function __construct() {
+  public function __construct()
+  {
     $this->transactions = new ArrayCollection();
     $this->categories = new ArrayCollection();
   }
@@ -53,12 +56,14 @@ class User {
   /**
    * @return int
    */
-  public function getId(): int {
+  public function getId(): int
+  {
     return $this->id;
   }
 
   #[PrePersist, PreUpdate]
-  public function updateTimestamps(LifecycleEventArgs $args) {
+  public function updateTimestamps(LifecycleEventArgs $args)
+  {
     if (!isset($this->createdAt)) {
       $this->createdAt = new DateTime();
     }
@@ -69,7 +74,8 @@ class User {
   /**
    * @return string
    */
-  public function getEmail(): string {
+  public function getEmail(): string
+  {
     return $this->email;
   }
 
@@ -77,7 +83,8 @@ class User {
    * @param string $email 
    * @return self
    */
-  public function setEmail(string $email): self {
+  public function setEmail(string $email): self
+  {
     $this->email = $email;
     return $this;
   }
@@ -85,7 +92,8 @@ class User {
   /**
    * @return string
    */
-  public function getPassword(): string {
+  public function getPassword(): string
+  {
     return $this->password;
   }
 
@@ -93,7 +101,8 @@ class User {
    * @param string $password 
    * @return self
    */
-  public function setPassword(string $password): self {
+  public function setPassword(string $password): self
+  {
     $this->password = $password;
     return $this;
   }
@@ -101,7 +110,8 @@ class User {
   /**
    * @return string
    */
-  public function getName(): string {
+  public function getName(): string
+  {
     return $this->name;
   }
 
@@ -109,7 +119,8 @@ class User {
    * @param string $name 
    * @return self
    */
-  public function setName(string $name): self {
+  public function setName(string $name): self
+  {
     $this->name = $name;
     return $this;
   }
@@ -117,7 +128,8 @@ class User {
   /**
    * @return DateTime
    */
-  public function getCreatedAt(): DateTime {
+  public function getCreatedAt(): DateTime
+  {
     return $this->createdAt;
   }
 
@@ -125,7 +137,8 @@ class User {
    * @param DateTime $createdAt 
    * @return self
    */
-  public function setCreatedAt(DateTime $createdAt): self {
+  public function setCreatedAt(DateTime $createdAt): self
+  {
     $this->createdAt = $createdAt;
     return $this;
   }
@@ -133,7 +146,8 @@ class User {
   /**
    * @return DateTime
    */
-  public function getUpdatedAt(): DateTime {
+  public function getUpdatedAt(): DateTime
+  {
     return $this->updatedAt;
   }
 
@@ -141,7 +155,8 @@ class User {
    * @param DateTime $updatedAt 
    * @return self
    */
-  public function setUpdatedAt(DateTime $updatedAt): self {
+  public function setUpdatedAt(DateTime $updatedAt): self
+  {
     $this->updatedAt = $updatedAt;
     return $this;
   }
@@ -149,7 +164,8 @@ class User {
   /**
    * @return Collection
    */
-  public function getCategories(): Collection {
+  public function getCategories(): Collection
+  {
     return $this->categories;
   }
 
@@ -157,7 +173,8 @@ class User {
    * @param Category $category
    * @return self
    */
-  public function addCategory(Category $category): self {
+  public function addCategory(Category $category): self
+  {
     $this->categories->add($category);
     return $this;
   }
@@ -165,7 +182,8 @@ class User {
   /**
    * @return Collection
    */
-  public function getTransactions(): Collection {
+  public function getTransactions(): Collection
+  {
     return $this->transactions;
   }
 
@@ -173,7 +191,8 @@ class User {
    * @param Transaction $transaction
    * @return self
    */
-  public function addTransaction(Transaction $transaction): self {
+  public function addTransaction(Transaction $transaction): self
+  {
     $this->transactions->add($transaction);
     return $this;
   }

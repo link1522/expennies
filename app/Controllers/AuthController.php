@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Contracts\AuthInterface;
 use App\Entity\User;
 use Slim\Views\Twig;
 use Valitron\Validator;
@@ -12,8 +13,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthController
 {
-  public function __construct(private readonly Twig $twig, private readonly EntityManager $entityManager)
-  {
+  public function __construct(
+    private readonly Twig $twig,
+    private readonly EntityManager $entityManager,
+    private readonly AuthInterface $auth
+  ) {
   }
 
   public function loginView(Request $request, Response $response): Response
@@ -61,7 +65,6 @@ class AuthController
 
   public function login(Request $request, Response $response): Response
   {
-    // 1. Validate the request data
     $data = $request->getParsedBody();
 
     $v = new Validator($data);
@@ -69,23 +72,17 @@ class AuthController
     $v->rule('required', ['email', 'password'])
       ->rule('email', 'email');
 
-    // 2. Chech the user credentials
-    $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-
-    if (!$user || password_verify($data['password'], $user->getPassword())) {
+    if (!$this->auth->attemptLogin($data)) {
       throw new ValidationException(['password' => ['You have entered an invalid username or password']]);
     }
-    // 3. Save user id in the session
-
-    session_regenerate_id(); // regenerate session id to prevent session hijacking or session fixation
-
-    $_SESSION['user'] = $user->getId();
 
     return $response->withHeader('Location', '/')->withStatus(302);
   }
 
   public function logout(Request $request, Response $response): Response
   {
+    $this->auth->logout();
+
     return $response->withHeader('Location', '/')->withStatus(302);
   }
 }

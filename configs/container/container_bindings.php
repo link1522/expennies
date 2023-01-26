@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Auth;
 use Slim\App;
 use App\Config;
 use Slim\Views\Twig;
@@ -10,11 +11,14 @@ use Doctrine\ORM\ORMSetup;
 use App\Enum\AppEnvironment;
 use Slim\Factory\AppFactory;
 use Doctrine\ORM\EntityManager;
+use App\Contracts\AuthInterface;
 use Twig\Extra\Intl\IntlExtension;
 use Symfony\Component\Asset\Package;
+use App\services\UserProviderService;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Asset\Packages;
 use Psr\Http\Message\ResponseFactoryInterface;
+use App\Contracts\UserProviderServiceInterface;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
@@ -65,6 +69,12 @@ return [
 
   ResponseFactoryInterface::class =>
   fn (App $app) => $app->getResponseFactory(),
+
+  AuthInterface::class =>
+  fn (ContainerInterface $container) => $container->get(Auth::class),
+
+  UserProviderServiceInterface::class =>
+  fn (ContainerInterface $container) => $container->get(UserProviderService::class),
 
   /**
    * The following two bindings are needed for EntryFilesTwigExtension & AssetExtension to work for Twig
