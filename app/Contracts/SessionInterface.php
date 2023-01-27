@@ -21,4 +21,8 @@ interface SessionInterface
   public function forget(string $key): void;
 
   public function regenerate(): bool;
+
+  public function flash(string $key, array $message): void;
+
+  public function getFlash(string $key): array;
 }

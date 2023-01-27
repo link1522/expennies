@@ -31,6 +31,7 @@ return [
   ],
   'session' => [
     'name' => $appSnackName . '_session',
+    'flash_name' => $appSnackName . '_flash',
     'secure' => true,
     'httponly' => true,
     'samesite' => 'lax',

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Contracts\SessionInterface;
-use App\Exceptions\SessionException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -22,6 +21,11 @@ class StartSessionsMiddleware implements MiddlewareInterface
     $this->session->start();
 
     $response = $handler->handle($request);
+
+    // TODO: check for XHR request
+    if ($request->getMethod() === 'GET') {
+      $this->session->put('previousUrl', (string) $request->getUri());
+    }
 
     $this->session->save();
 
