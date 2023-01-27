@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Auth;
 use Slim\App;
 use App\Config;
+use App\Session;
 use Slim\Views\Twig;
 use function DI\create;
 use Doctrine\ORM\ORMSetup;
@@ -13,6 +14,7 @@ use Slim\Factory\AppFactory;
 use Doctrine\ORM\EntityManager;
 use App\Contracts\AuthInterface;
 use Twig\Extra\Intl\IntlExtension;
+use App\Contracts\SessionInterface;
 use Symfony\Component\Asset\Package;
 use App\services\UserProviderService;
 use Psr\Container\ContainerInterface;
@@ -24,10 +26,12 @@ use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use App\DataObjects\SessionConfig;
+use App\Enum\SameSite;
 
 return [
   App::class =>
-  function (ContainerInterface $container) {
+  function (ContainerInterface $container, Config $config) {
     AppFactory::setContainer($container);
 
     $addMiddlewares = require CONFIG_PATH . '/middleware.php';
@@ -37,6 +41,8 @@ return [
 
     $router($app);
     $addMiddlewares($app);
+
+    date_default_timezone_set($config->get('timezone'));
 
     return $app;
   },
@@ -75,6 +81,14 @@ return [
 
   UserProviderServiceInterface::class =>
   fn (ContainerInterface $container) => $container->get(UserProviderService::class),
+
+  SessionInterface::class =>
+  fn (Config $config) => new Session(new SessionConfig(
+    $config->get('session.name', ''),
+    $config->get('session.secure', true),
+    $config->get('session.httponly', true),
+    SameSite::from($config->get('session.samesite', 'lax'))
+  )),
 
   /**
    * The following two bindings are needed for EntryFilesTwigExtension & AssetExtension to work for Twig
