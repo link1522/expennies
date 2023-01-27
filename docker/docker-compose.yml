@@ -32,7 +32,7 @@ services:
     container_name: expennies-db
     image: mysql:8.0
     volumes:
-      - ./storage/mysql:/var/lib/mysql
+      - ../storage/mysql:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
