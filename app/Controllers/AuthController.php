@@ -2,20 +2,22 @@
 
 namespace App\Controllers;
 
-use App\Contracts\AuthInterface;
-use App\Entity\User;
 use Slim\Views\Twig;
 use Valitron\Validator;
-use Doctrine\ORM\EntityManager;
+use App\Contracts\AuthInterface;
+use App\DataObjects\RegisterUserData;
 use App\Exceptions\ValidationException;
+use App\Contracts\RequestValidatorFactoryInterface;
+use App\RequestValidator\UserLoginRequestValidator;
 use Psr\Http\Message\ResponseInterface as Response;
+use App\RequestValidator\RegisterUserRequestValidator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthController
 {
   public function __construct(
     private readonly Twig $twig,
-    private readonly EntityManager $entityManager,
+    private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
     private readonly AuthInterface $auth
   ) {
   }
@@ -32,45 +34,28 @@ class AuthController
 
   public function register(Request $request, Response $response): Response
   {
-    $data = $request->getParsedBody();
+    $data =
+      $this->requestValidatorFactory
+      ->make(RegisterUserRequestValidator::class)
+      ->validate($request->getParsedBody());
 
-    $v = new Validator($data);
+    $this->auth->register(
+      new RegisterUserData(
+        $data['name'],
+        $data['email'],
+        $data['password']
+      )
+    );
 
-    $v->rule('required', ['name', 'email', 'password', 'confirmPassword'])
-      ->rule('email', 'email')
-      ->rule('equals', 'confirmPassword', 'password')->label('Confirm Password')
-      ->rule(
-        fn ($field, $value) => !$this->entityManager->getRepository(User::class)->count(['email' => $value]),
-        'email'
-      )->message('User with the given email is already exists');
-
-    if ($v->validate()) {
-      echo "Yay! We're all good!";
-    } else {
-      throw new ValidationException($v->errors());
-    }
-
-    $user = new User();
-
-    $user
-      ->setName($data['name'])
-      ->setEmail($data['email'])
-      ->setPassword(password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]));
-
-    $this->entityManager->persist($user);
-    $this->entityManager->flush();
-
-    return $response;
+    return $response->withHeader('Location', '/')->withStatus(302);
   }
 
   public function login(Request $request, Response $response): Response
   {
-    $data = $request->getParsedBody();
-
-    $v = new Validator($data);
-
-    $v->rule('required', ['email', 'password'])
-      ->rule('email', 'email');
+    $data =
+      $this->requestValidatorFactory
+      ->make(UserLoginRequestValidator::class)
+      ->validate($request->getParsedBody());
 
     if (!$this->auth->attemptLogin($data)) {
       throw new ValidationException(['password' => ['You have entered an invalid username or password']]);
