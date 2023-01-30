@@ -6,6 +6,7 @@ use App\Auth;
 use Slim\App;
 use App\Config;
 use App\Session;
+use Slim\Csrf\Guard;
 use Slim\Views\Twig;
 use App\Enum\SameSite;
 use function DI\create;
@@ -109,4 +110,7 @@ return [
     new EntrypointLookup(BUILD_PATH . '/entrypoints.json'),
     $container->get('webpack_encore.packages')
   ),
+
+  'csrf' =>
+  fn (ResponseFactoryInterface $responseFactory) => new Guard($responseFactory, persistentTokenMode: true),
 ];
