@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use Slim\Views\Twig;
-use Valitron\Validator;
 use App\Contracts\AuthInterface;
 use App\DataObjects\RegisterUserData;
 use App\Exceptions\ValidationException;
