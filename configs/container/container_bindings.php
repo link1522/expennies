@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Auth;
+use App\Csrf;
 use Slim\App;
 use App\Config;
 use App\Session;
@@ -112,5 +113,9 @@ return [
   ),
 
   'csrf' =>
-  fn (ResponseFactoryInterface $responseFactory) => new Guard($responseFactory, persistentTokenMode: true),
+  fn (ResponseFactoryInterface $responseFactory, Csrf $csrf) => new Guard(
+    $responseFactory, 
+    persistentTokenMode: true,
+    failureHandler: $csrf->failureHandler()
+  ),
 ];

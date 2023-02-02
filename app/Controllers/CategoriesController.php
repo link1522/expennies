@@ -9,6 +9,7 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\RequestValidator\CreateCategoryRequestValidator;
+use App\RequestValidator\UpdateCategoryRequestValidator;
 
 class CategoriesController
 {
@@ -62,6 +63,26 @@ class CategoriesController
     $data = [
       'id' => $category->getId(),
       'name' => $category->getName(),
+    ];
+
+    return $this->responseFormatter->asJson($response, $data);
+  }
+
+  public function update(Request $request, Response $response, array $args): Response
+  {
+    $data =
+      $this->requestValidatorFactory
+      ->make(UpdateCategoryRequestValidator::class)
+      ->validate($request->getParsedBody());
+
+    $category = $this->categoryService->getById((int) $args['id']);
+
+    if (!$category) {
+      return $response->withStatus(404);
+    }
+
+    $data = [
+      'status' => 'ok'
     ];
 
     return $this->responseFormatter->asJson($response, $data);
