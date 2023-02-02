@@ -1,5 +1,6 @@
 import '../css/categories.scss'
 import { Modal } from 'bootstrap'
+import { get, post } from './ajax'
 
 window.addEventListener('DOMContentLoaded', function () {
   const editCategoryModal = new Modal(
@@ -10,8 +11,7 @@ window.addEventListener('DOMContentLoaded', function () {
     button.addEventListener('click', async function (event) {
       const categoryId = event.currentTarget.getAttribute('data-id')
 
-      const response = await fetch(`/categories/${categoryId}`)
-      const data = await response.json()
+      const data = await get(`/categories/${categoryId}`)
 
       openEditCategoryModal(editCategoryModal, data)
     })
@@ -22,35 +22,14 @@ window.addEventListener('DOMContentLoaded', function () {
     .addEventListener('click', async function (event) {
       const categoryId = event.currentTarget.getAttribute('data-id')
 
-      const response = await fetch(`/categories/${categoryId}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          name: editCategoryModal._element.querySelector('input[name="name"]')
-            .value,
-          ...getCsrfFields()
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const data = await post(`/categories/${categoryId}`, {
+        name: editCategoryModal._element.querySelector('input[name="name"]')
+          .value
       })
-      const data = await response.json()
+
+      console.log(data)
     })
 })
-
-function getCsrfFields() {
-  const csrfNameMeta = document.querySelector('#csrfName')
-  const csrfValueMeta = document.querySelector('#csrfValue')
-
-  const csrfNameKey = csrfNameMeta.getAttribute('name')
-  const csrfName = csrfNameMeta.content
-  const csrfValueKey = csrfValueMeta.getAttribute('name')
-  const csrfValue = csrfValueMeta.content
-
-  return {
-    [csrfNameKey]: csrfName,
-    [csrfValueKey]: csrfValue
-  }
-}
 
 function openEditCategoryModal(modal, { id, name }) {
   const nameInput = modal._element.querySelector('input[name="name"]')
