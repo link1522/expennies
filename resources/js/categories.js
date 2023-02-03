@@ -1,6 +1,6 @@
 import '../css/categories.scss'
 import { Modal } from 'bootstrap'
-import { get, post } from './ajax'
+import { get, post, del } from './ajax'
 
 window.addEventListener('DOMContentLoaded', function () {
   const editCategoryModal = new Modal(
@@ -11,7 +11,8 @@ window.addEventListener('DOMContentLoaded', function () {
     button.addEventListener('click', async function (event) {
       const categoryId = event.currentTarget.getAttribute('data-id')
 
-      const data = await get(`/categories/${categoryId}`)
+      const response = await get(`/categories/${categoryId}`)
+      const data = await response.json()
 
       openEditCategoryModal(editCategoryModal, data)
     })
@@ -22,12 +23,28 @@ window.addEventListener('DOMContentLoaded', function () {
     .addEventListener('click', async function (event) {
       const categoryId = event.currentTarget.getAttribute('data-id')
 
-      const data = await post(`/categories/${categoryId}`, {
-        name: editCategoryModal._element.querySelector('input[name="name"]')
-          .value
-      })
+      const response = await post(
+        `/categories/${categoryId}`,
+        {
+          name: editCategoryModal._element.querySelector('input[name="name"]')
+            .value
+        },
+        editCategoryModal._element
+      )
 
-      console.log(data)
+      if (response.ok) {
+        editCategoryModal.hide()
+      }
+    })
+
+  document
+    .querySelector('.delete-category-btn')
+    .addEventListener('click', async function (event) {
+      const categoryId = event.currentTarget.getAttribute('data-id')
+
+      if (confirm('Are you sure you want to delete this category?')) {
+        await del(`/categories/${categoryId}`)
+      }
     })
 })
 
