@@ -1,5 +1,6 @@
-import '../css/categories.scss'
+import DataTables from 'datatables.net'
 import { Modal } from 'bootstrap'
+import '../css/categories.scss'
 import { get, post, del } from './ajax'
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -7,16 +8,52 @@ window.addEventListener('DOMContentLoaded', function () {
     document.getElementById('editCategoryModal')
   )
 
-  document.querySelectorAll('.edit-category-btn').forEach(button => {
-    button.addEventListener('click', async function (event) {
-      const categoryId = event.currentTarget.getAttribute('data-id')
-
-      const response = await get(`/categories/${categoryId}`)
-      const data = await response.json()
-
-      openEditCategoryModal(editCategoryModal, data)
-    })
+  const table = new DataTables('#categoriesTable', {
+    serverSide: true,
+    ajax: '/categories/load',
+    orderMulti: false,
+    columns: [
+      { data: 'name' },
+      { data: 'createdAt' },
+      { data: 'updatedAt' },
+      {
+        sortable: false,
+        data: row => `
+            <div class="d-flex flex-">
+                <button type="submit" class="btn btn-outline-primary delete-category-btn" data-id="${row.id}">
+                    <i class="bi bi-trash3-fill"></i>
+                </button>
+                <button class="ms-2 btn btn-outline-primary edit-category-btn" data-id="${row.id}">
+                    <i class="bi bi-pencil-fill"></i>
+                </button>
+            </div>
+        `
+      }
+    ]
   })
+
+  document
+    .querySelector('#categoriesTable')
+    .addEventListener('click', function (event) {
+      const editBtn = event.target.closest('.edit-category-btn')
+      const deleteBtn = event.target.closest('.delete-category-btn')
+
+      if (editBtn) {
+        const categoryId = editBtn.getAttribute('data-id')
+
+        get(`/categories/${categoryId}`)
+          .then(response => response.json())
+          .then(response => openEditCategoryModal(editCategoryModal, response))
+      } else {
+        const categoryId = deleteBtn.getAttribute('data-id')
+
+        if (confirm('Are you sure you want to delete this category?')) {
+          del(`/categories/${categoryId}`).then(() => {
+            table.draw()
+          })
+        }
+      }
+    })
 
   document
     .querySelector('.save-category-btn')
@@ -33,17 +70,8 @@ window.addEventListener('DOMContentLoaded', function () {
       )
 
       if (response.ok) {
+        table.draw()
         editCategoryModal.hide()
-      }
-    })
-
-  document
-    .querySelector('.delete-category-btn')
-    .addEventListener('click', async function (event) {
-      const categoryId = event.currentTarget.getAttribute('data-id')
-
-      if (confirm('Are you sure you want to delete this category?')) {
-        await del(`/categories/${categoryId}`)
       }
     })
 })
