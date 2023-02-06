@@ -11,6 +11,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\RequestValidator\CreateCategoryRequestValidator;
 use App\RequestValidator\UpdateCategoryRequestValidator;
+use App\services\RequestService;
 
 class CategoriesController
 {
@@ -19,6 +20,7 @@ class CategoriesController
     private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
     private readonly CategoryService $categoryService,
     private readonly ResponseFormatter $responseFormatter,
+    private readonly RequestService $requestService
   ) {
   }
 
@@ -82,9 +84,9 @@ class CategoriesController
 
   public function load(Request $request, Response $response): Response
   {
-    $params = $request->getQueryParams();
+    $params = $this->requestService->getDataTableQueryParameters($request);
 
-    $categories = $this->categoryService->getPaginatedCategories((int) $params['start'], (int) $params['length']);
+    $categories = $this->categoryService->getPaginatedCategories($params);
 
     $transformer = fn (Category $category) =>
     [
@@ -96,14 +98,11 @@ class CategoriesController
 
     $totalCategories = count($categories);
 
-    return $this->responseFormatter->asJson(
+    return $this->responseFormatter->asDataTable(
       $response,
-      [
-        'data' => array_map($transformer, (array) $categories->getIterator()),
-        'draw' => (int) $params['draw'],
-        'recordsTotal' => $totalCategories,
-        'recordsFiltered' => $totalCategories,
-      ]
+      array_map($transformer, (array) $categories->getIterator()),
+      $params->draw,
+      $totalCategories,
     );
   }
 }
