@@ -13,7 +13,7 @@ use App\RequestValidator\CreateCategoryRequestValidator;
 use App\RequestValidator\UpdateCategoryRequestValidator;
 use App\services\RequestService;
 
-class CategoriesController
+class CategoryController
 {
   public function __construct(
     private readonly Twig $twig,

@@ -3,6 +3,7 @@ vendor
 storage/cache/**/*
 storage/temp/**/*
 storage/mysql/**/*
+storage/logs/**/*
 node_modules
 public/build
 .phpunit.result.cache

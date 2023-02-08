@@ -5,19 +5,25 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
+use App\Entity\Traits\HasTimestamp;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[Entity, Table('transactions')]
-class Transaction {
+#[HasLifecycleCallbacks]
+class Transaction
+{
+  use HasTimestamp;
+
   #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
   private int $id;
 
@@ -45,21 +51,24 @@ class Transaction {
   #[OneToMany(mappedBy: 'transaction', targetEntity: Receipt::class)]
   private Collection $receipts;
 
-  public function __construct() {
+  public function __construct()
+  {
     $this->receipts = new ArrayCollection();
   }
 
   /**
    * @return int
    */
-  public function getId(): int {
+  public function getId(): int
+  {
     return $this->id;
   }
 
   /**
    * @return string
    */
-  public function getDescription(): string {
+  public function getDescription(): string
+  {
     return $this->description;
   }
 
@@ -67,7 +76,8 @@ class Transaction {
    * @param string $description 
    * @return self
    */
-  public function setDescription(string $description): self {
+  public function setDescription(string $description): self
+  {
     $this->description = $description;
     return $this;
   }
@@ -75,7 +85,8 @@ class Transaction {
   /**
    * @return DateTime
    */
-  public function getDate(): DateTime {
+  public function getDate(): DateTime
+  {
     return $this->date;
   }
 
@@ -83,7 +94,8 @@ class Transaction {
    * @param DateTime $date 
    * @return self
    */
-  public function setDate(DateTime $date): self {
+  public function setDate(DateTime $date): self
+  {
     $this->date = $date;
     return $this;
   }
@@ -91,7 +103,8 @@ class Transaction {
   /**
    * @return float
    */
-  public function getAmount(): float {
+  public function getAmount(): float
+  {
     return $this->amount;
   }
 
@@ -99,7 +112,8 @@ class Transaction {
    * @param float $amount 
    * @return self
    */
-  public function setAmount(float $amount): self {
+  public function setAmount(float $amount): self
+  {
     $this->amount = $amount;
     return $this;
   }
@@ -107,39 +121,24 @@ class Transaction {
   /**
    * @return DateTime
    */
-  public function getCreatedAt(): DateTime {
+  public function getCreatedAt(): DateTime
+  {
     return $this->createdAt;
-  }
-
-  /**
-   * @param DateTime $createdAt 
-   * @return self
-   */
-  public function setCreatedAt(DateTime $createdAt): self {
-    $this->createdAt = $createdAt;
-    return $this;
   }
 
   /**
    * @return DateTime
    */
-  public function getUpdatedAt(): DateTime {
+  public function getUpdatedAt(): DateTime
+  {
     return $this->updatedAt;
-  }
-
-  /**
-   * @param DateTime $updatedAt 
-   * @return self
-   */
-  public function setUpdatedAt(DateTime $updatedAt): self {
-    $this->updatedAt = $updatedAt;
-    return $this;
   }
 
   /**
    * @return User
    */
-  public function getUser(): User {
+  public function getUser(): User
+  {
     return $this->user;
   }
 
@@ -147,7 +146,8 @@ class Transaction {
    * @param User $user 
    * @return self
    */
-  public function setUser(User $user): self {
+  public function setUser(User $user): self
+  {
     $user->addTransaction($this);
 
     $this->user = $user;
@@ -158,7 +158,8 @@ class Transaction {
   /**
    * @return Category
    */
-  public function getCategory(): Category {
+  public function getCategory(): Category
+  {
     return $this->category;
   }
 
@@ -166,7 +167,8 @@ class Transaction {
    * @param Category $category 
    * @return self
    */
-  public function setCategory(Category $category): self {
+  public function setCategory(Category $category): self
+  {
     $category->addTransaction($this);
 
     $this->category = $category;
@@ -177,7 +179,8 @@ class Transaction {
   /**
    * @return Collection
    */
-  public function getReceipts(): Collection {
+  public function getReceipts(): Collection
+  {
     return $this->receipts;
   }
 
@@ -185,7 +188,8 @@ class Transaction {
    * @param Receipt $receipt
    * @return self
    */
-  public function addReceipt(Receipt $receipt): self {
+  public function addReceipt(Receipt $receipt): self
+  {
     $this->receipts->add($receipt);
     return $this;
   }
