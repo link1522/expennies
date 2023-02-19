@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Contracts\SessionInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class GuestMiddleware implements MiddlewareInterface
+class MethodOverrideMiddleware implements MiddlewareInterface
 {
   public function __construct()
   {

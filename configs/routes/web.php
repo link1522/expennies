@@ -9,6 +9,7 @@ use App\Controllers\HomeController;
 use App\Middleware\GuestMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 use App\Controllers\CategoryController;
+use App\Controllers\ReceiptController;
 use App\Controllers\TransactionController;
 
 return function (App $app) {
@@ -39,5 +40,6 @@ return function (App $app) {
     $transactions->delete('/{id:[0-9]+}', [TransactionController::class, 'delete']);
     $transactions->get('/{id:[0-9]+}', [TransactionController::class, 'get']);
     $transactions->post('/{id:[0-9]+}', [TransactionController::class, 'update']);
+    $transactions->post('/{id:[0-9]+}/receipts', [ReceiptController::class, 'store']);
   })->add(AuthMiddleware::class);
 };

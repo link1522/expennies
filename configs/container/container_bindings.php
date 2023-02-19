@@ -29,9 +29,12 @@ use App\RequestValidator\RequestValidatorFactory;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\Enum\StorageDriver;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 return [
   App::class =>
@@ -114,8 +117,16 @@ return [
 
   'csrf' =>
   fn (ResponseFactoryInterface $responseFactory, Csrf $csrf) => new Guard(
-    $responseFactory, 
+    $responseFactory,
     persistentTokenMode: true,
     failureHandler: $csrf->failureHandler()
   ),
+
+  Filesystem::class => function (Config $config) {
+    $adapt = match ($config->get('storage.driver')) {
+      StorageDriver::Local => new LocalFilesystemAdapter(STORAGE_PATH)
+    };
+
+    return new Filesystem($adapt);
+  }
 ];
