@@ -120,10 +120,12 @@ window.addEventListener('DOMContentLoaded', function () {
   document
     .querySelector('.upload-receipt-btn')
     .addEventListener('click', function (event) {
-      const transactionId = event.currentTarget.getAttribute('data-id')
-      const formData = new FormData()
       const files =
         uploadReceiptModal._element.querySelector('input[type="file"]').files
+      if (files.length === 0) return uploadReceiptModal.hide()
+
+      const transactionId = event.currentTarget.getAttribute('data-id')
+      const formData = new FormData()
 
       for (let i = 0; i < files.length; i++) {
         formData.append('receipt', files[i])
