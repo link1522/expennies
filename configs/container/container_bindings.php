@@ -123,7 +123,7 @@ return [
   ),
 
   Filesystem::class => function (Config $config) {
-    $adapt = match ($config->get('storage.drive')) {
+    $adapt = match ($config->get('storage.driver')) {
       StorageDriver::Local => new LocalFilesystemAdapter(STORAGE_PATH)
     };
 
