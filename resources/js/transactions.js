@@ -135,12 +135,14 @@ window.addEventListener('DOMContentLoaded', function () {
         `/transactions/${transactionId}/receipts`,
         formData,
         uploadReceiptModal._element
-      ).then(response => {
-        if (response.ok) {
-          table.draw()
-          uploadReceiptModal.hide()
-        }
-      })
+      )
+        .then(response => response.json())
+        .then(response => {
+          if (response.ok) {
+            table.draw()
+            uploadReceiptModal.hide()
+          }
+        })
     })
 })
 

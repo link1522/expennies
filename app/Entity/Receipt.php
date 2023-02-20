@@ -13,15 +13,19 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\GeneratedValue;
 
 #[Entity, Table('receipts')]
-class Receipt {
+class Receipt
+{
   #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
   private int $id;
 
-  #[Column(name: 'file_name')]
-  private string $fileName;
+  #[Column]
+  private string $filename;
+
+  #[Column(name: 'storage_filename')]
+  private string $storageFilename;
 
   #[Column(name: 'created_at')]
-  private \DateTime $createdAt;
+  private DateTime $createdAt;
 
   #[ManyToOne(inversedBy: 'receipts')]
   private Transaction $transaction;
@@ -29,30 +33,34 @@ class Receipt {
   /**
    * @return int
    */
-  public function getId(): int {
+  public function getId(): int
+  {
     return $this->id;
   }
 
   /**
    * @return string
    */
-  public function getFileName(): string {
-    return $this->fileName;
+  public function getFilename(): string
+  {
+    return $this->filename;
   }
 
   /**
-   * @param string $fileName 
+   * @param string $filename 
    * @return self
    */
-  public function setFileName(string $fileName): self {
-    $this->fileName = $fileName;
+  public function setFilename(string $filename): self
+  {
+    $this->filename = $filename;
     return $this;
   }
 
   /**
    * @return DateTime
    */
-  public function getCreatedAt(): DateTime {
+  public function getCreatedAt(): DateTime
+  {
     return $this->createdAt;
   }
 
@@ -60,7 +68,8 @@ class Receipt {
    * @param DateTime $createdAt 
    * @return self
    */
-  public function setCreatedAt(DateTime $createdAt): self {
+  public function setCreatedAt(DateTime $createdAt): self
+  {
     $this->createdAt = $createdAt;
     return $this;
   }
@@ -68,7 +77,8 @@ class Receipt {
   /**
    * @return Transaction
    */
-  public function getTransaction(): Transaction {
+  public function getTransaction(): Transaction
+  {
     return $this->transaction;
   }
 
@@ -76,11 +86,30 @@ class Receipt {
    * @param Transaction $transaction 
    * @return self
    */
-  public function setTransaction(Transaction $transaction): self {
+  public function setTransaction(Transaction $transaction): self
+  {
     $transaction->addReceipt($this);
 
     $this->transaction = $transaction;
 
+    return $this;
+  }
+
+  /**
+   * @return string
+   */
+  public function getStorageFilename(): string
+  {
+    return $this->storageFilename;
+  }
+
+  /**
+   * @param string $storageFilename 
+   * @return self
+   */
+  public function setStorageFilename(string $storageFilename): self
+  {
+    $this->storageFilename = $storageFilename;
     return $this;
   }
 }
