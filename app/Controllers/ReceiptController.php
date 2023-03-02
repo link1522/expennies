@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use Slim\Psr7\Stream;
 use App\services\ReceiptService;
 use League\Flysystem\Filesystem;
 use App\services\TransactionService;
@@ -36,8 +37,40 @@ class ReceiptController
 
     $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
 
-    $this->receiptService->create($transaction, $filename, $randomFilename);
+    $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType());
 
+    return $response;
+  }
+
+  public function download(Request $request, Response $response, array $args): Response
+  {
+    $transactionId = (int) $args['transactionId'];
+    $receiptId = (int) $args['id'];
+
+    if (!$transactionId || !($this->transactionService->getById($transactionId))) {
+      return $response->withStatus(404);
+    }
+
+    if (!$receiptId || !($receipt = $this->receiptService->getById($receiptId))) {
+      return $response->withStatus(404);
+    }
+
+    if ($receipt->getTransaction()->getId() !== $transactionId) {
+      return $response->withStatus(401);
+    }
+
+    $file = $this->filesystem->readStream('receipts/' . $receipt->getStorageFilename());
+
+    $response = $response->withHeader(
+      'Content-Disposition',
+      'inline; filename="' . $receipt->getFilename() . '"'
+    )->withHeader('Content-Type', $receipt->getMediaType());
+
+    return $response->withBody(new Stream($file));
+  }
+
+  public function delete(Request $request, Response $response, array $args): Response
+  {
     return $response;
   }
 }

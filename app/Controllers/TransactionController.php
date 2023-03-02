@@ -9,6 +9,7 @@ use App\services\RequestService;
 use App\services\CategoryService;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\TransactionData;
+use App\Entity\Receipt;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\RequestValidator\TransactionRequestValidator;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -119,7 +120,11 @@ class TransactionController
       'description' => $transaction->getDescription(),
       'amount' => $transaction->getAmount(),
       'date' => $transaction->getDate()->format('m/d/Y g:i A'),
-      'category' => $transaction->getCategory()->getName()
+      'category' => $transaction->getCategory()->getName(),
+      'receipts' => $transaction->getReceipts()->map(fn (Receipt $receipt) => [
+        'name' => $receipt->getFilename(),
+        'id' => $receipt->getId()
+      ])->toArray()
     ];
 
     $totalTransactions = count($transactions);
