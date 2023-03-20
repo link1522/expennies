@@ -1,10 +1,5 @@
 .env
 vendor
-storage/cache/**/*
-storage/temp/**/*
-storage/mysql/**/*
-storage/logs/**/*
-storage/receipts/**/*
 node_modules
 public/build
 .phpunit.result.cache

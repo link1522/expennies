@@ -2,16 +2,19 @@
 
 declare(strict_types=1);
 
+use Slim\App;
 use App\Config;
+use Slim\Views\Twig;
+use Clockwork\Clockwork;
+use App\Enum\AppEnvironment;
+use Slim\Views\TwigMiddleware;
 use App\Middleware\CsrfFieldMiddleware;
 use App\Middleware\OldFormDataMiddleware;
-use App\Middleware\StartSessionsMiddleware;
 use App\Middleware\ValidationErrorsMiddle;
-use App\Middleware\ValidationExceptionMiddleware;
-use Slim\App;
+use App\Middleware\StartSessionsMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\Views\Twig;
-use Slim\Views\TwigMiddleware;
+use Clockwork\Support\Slim\ClockworkMiddleware;
+use App\Middleware\ValidationExceptionMiddleware;
 
 return function (App $app) {
   $container = $app->getContainer();
@@ -25,6 +28,9 @@ return function (App $app) {
   $app->add(ValidationErrorsMiddle::class);
   $app->add(OldFormDataMiddleware::class);
   $app->add(StartSessionsMiddleware::class);
+  if (AppEnvironment::isDevelopment($config->get('app_environment'))) {
+    $app->add(new ClockworkMiddleware($app, $container->get(Clockwork::class)));
+  }
   $app->addBodyParsingMiddleware();
 
   // Logger

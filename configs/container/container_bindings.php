@@ -11,12 +11,17 @@ use Slim\Csrf\Guard;
 use Slim\Views\Twig;
 use App\Enum\SameSite;
 use function DI\create;
+use Clockwork\Clockwork;
 use Doctrine\ORM\ORMSetup;
+use App\Enum\StorageDriver;
 use App\Enum\AppEnvironment;
 use Slim\Factory\AppFactory;
 use Doctrine\ORM\EntityManager;
 use App\Contracts\AuthInterface;
+use Doctrine\DBAL\DriverManager;
+use League\Flysystem\Filesystem;
 use App\DataObjects\SessionConfig;
+use Clockwork\Storage\FileStorage;
 use Twig\Extra\Intl\IntlExtension;
 use App\Contracts\SessionInterface;
 use Symfony\Component\Asset\Package;
@@ -27,14 +32,13 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\RequestValidator\RequestValidatorFactory;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use App\Contracts\RequestValidatorFactoryInterface;
-use App\Enum\StorageDriver;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Local\LocalFilesystemAdapter;
+use Clockwork\DataSource\DoctrineDataSource;
 
 return [
   App::class =>
@@ -57,14 +61,27 @@ return [
   Config::class =>
   create(Config::class)->constructor(require CONFIG_PATH . '/app.php'),
 
+  // EntityManager::class =>
+  // fn (Config $config) => EntityManager::create(
+  //   $config->get('doctrine.connection'),
+  //   ORMSetup::createAttributeMetadataConfiguration(
+  //     $config->get('doctrine.entity_dir'),
+  //     $config->get('doctrine.dev_mode')
+  //   )
+  // ),
+
   EntityManager::class =>
-  fn (Config $config) => EntityManager::create(
-    $config->get('doctrine.connection'),
-    ORMSetup::createAttributeMetadataConfiguration(
+  function (Config $config) {
+    $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
       $config->get('doctrine.entity_dir'),
       $config->get('doctrine.dev_mode')
-    )
-  ),
+    );
+
+    return new EntityManager(
+      DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
+      $ormConfig
+    );
+  },
 
   Twig::class =>
   function (Config $config, ContainerInterface $container) {
@@ -128,5 +145,15 @@ return [
     };
 
     return new Filesystem($adapt);
+  },
+
+  Clockwork::class =>
+  function (EntityManager $entityManager) {
+    $clockwork = new Clockwork();
+
+    $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
+    $clockwork->addDataSource(new DoctrineDataSource($entityManager));
+
+    return $clockwork;
   }
 ];
