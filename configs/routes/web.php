@@ -8,9 +8,10 @@ use App\Controllers\AuthController;
 use App\Controllers\HomeController;
 use App\Middleware\GuestMiddleware;
 use Slim\Routing\RouteCollectorProxy;
-use App\Controllers\CategoryController;
 use App\Controllers\ReceiptController;
+use App\Controllers\CategoryController;
 use App\Controllers\TransactionController;
+use App\Controllers\TransactionImportController;
 
 return function (App $app) {
   $app->get('/', [HomeController::class, 'index'])->add(AuthMiddleware::class);
