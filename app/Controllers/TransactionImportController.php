@@ -2,9 +2,7 @@
 
 namespace App\Controllers;
 
-use App\services\CategoryService;
-use App\DataObjects\TransactionData;
-use App\services\TransactionService;
+use App\services\TransactionImportService;
 use Psr\Http\Message\UploadedFileInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -15,8 +13,7 @@ class TransactionImportController
 {
   public function __construct(
     private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
-    private readonly TransactionService $transactionService,
-    private readonly CategoryService $categoryService
+    private readonly TransactionImportService $transactionImportService
   ) {
   }
 
@@ -28,22 +25,8 @@ class TransactionImportController
     )['importFile'];
 
     $user = $request->getAttribute('user');
-    $resource = fopen($file->getStream()->getMetadata('uri'), 'r');
-    $categories = $this->categoryService->getAllKeyedByName();
 
-    fgetcsv($resource);
-
-    while (($row = fgetcsv($resource)) !== false) {
-      [$date, $description, $category, $amount] = $row;
-
-      $date = new \DateTime($date);
-      $category = $categories[$category] ?? null;
-      $amount = str_replace(['$', ','], '', $amount);
-
-      $transactionData = new TransactionData($description, (float) $amount, $date, $category);
-
-      $this->transactionService->create($transactionData, $user);
-    }
+    $this->transactionImportService->importFromFile($file->getStream()->getMetadata('uri'), $user);
 
     return $response;
   }
