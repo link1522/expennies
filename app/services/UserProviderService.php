@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\services;
 
-use App\Contracts\UserInterface;
-use App\Contracts\UserProviderServiceInterface;
-use App\DataObjects\RegisterUserData;
 use App\Entity\User;
-use Doctrine\ORM\EntityManager;
+use App\Contracts\UserInterface;
+use App\DataObjects\RegisterUserData;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Contracts\UserProviderServiceInterface;
 
 class UserProviderService implements UserProviderServiceInterface
 {
-  public function __construct(private readonly EntityManager $entityManager)
+  public function __construct(private readonly EntityManagerInterface $entityManager)
   {
   }
 

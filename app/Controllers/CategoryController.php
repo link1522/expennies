@@ -37,6 +37,7 @@ class CategoryController
       ->validate($request->getParsedBody());
 
     $this->categoryService->create($data['name'], $request->getAttribute('user'));
+    $this->categoryService->flush();
 
     return $response->withHeader('Location', '/categories')->withStatus(302);
   }
@@ -44,6 +45,7 @@ class CategoryController
   public function delete(Request $request, Response $response, array $args): Response
   {
     $this->categoryService->delete((int) $args['id']);
+    $this->categoryService->flush();
 
     return $response;
   }
@@ -78,6 +80,7 @@ class CategoryController
     }
 
     $this->categoryService->update($category, $data['name']);
+    $this->categoryService->flush();
 
     return $response;
   }

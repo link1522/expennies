@@ -53,12 +53,15 @@ class TransactionController
       $request->getAttribute('user')
     );
 
+    $this->transactionService->flush();
+
     return $response;
   }
 
   public function delete(Request $request, Response $response, array $args): Response
   {
     $this->transactionService->delete((int) $args['id']);
+    $this->transactionService->flush();
 
     return $response;
   }
@@ -104,6 +107,8 @@ class TransactionController
         $data['category']
       )
     );
+
+    $this->transactionService->flush();
 
     return $response;
   }

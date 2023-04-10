@@ -36,12 +36,12 @@ class TransactionImportRequestValidator implements RequestValidatorInterface
       throw new ValidationException(['importFile' => ['Please select a CSV file to import']]);
     }
 
-    $detector = new FinfoMimeTypeDetector();
-    $mimeType = $detector->detectMimeTypeFromFile($uploadFile->getStream()->getMetadata('uri'));
+    // $detector = new FinfoMimeTypeDetector();
+    // $mimeType = $detector->detectMimeTypeFromFile($uploadFile->getStream()->getMetadata('uri'));
 
-    if (!in_array($mimeType, $allowedMimeTypes)) {
-      throw new ValidationException(['importFile' => ['Invalid file type']]);
-    }
+    // if (!in_array($mimeType, $allowedMimeTypes)) {
+    //   throw new ValidationException(['importFile' => ['Invalid file type']]);
+    // }
 
     return $data;
   }

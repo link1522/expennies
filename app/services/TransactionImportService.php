@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace App\services;
 
 use App\Entity\User;
+use App\Entity\Transaction;
 use App\services\CategoryService;
 use App\DataObjects\TransactionData;
-use App\Entity\Transaction;
 use App\services\TransactionService;
-use Doctrine\ORM\EntityManager;
 
 class TransactionImportService
 {
   public function __construct(
     private readonly CategoryService $categoryService,
     private readonly TransactionService $transactionService,
-    private readonly EntityManager $entityManager
+    private readonly EntityManagerService $entityManagerService
   ) {
   }
 
@@ -41,8 +40,8 @@ class TransactionImportService
       $this->transactionService->create($transactionData, $user);
 
       if ($count % $batchSize === 0) {
-        $this->entityManager->flush();
-        $this->entityManager->clear(Transaction::class);
+        $this->entityManagerService->flush();
+        $this->entityManagerService->clear(Transaction::class);
 
         $count = 1;
       } else {
@@ -51,8 +50,8 @@ class TransactionImportService
     }
 
     if ($count > 0) {
-      $this->entityManager->flush();
-      $this->entityManager->clear();
+      $this->entityManagerService->flush();
+      $this->entityManagerService->clear();
     }
   }
 }

@@ -39,6 +39,7 @@ use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
 use Clockwork\DataSource\DoctrineDataSource;
+use Doctrine\ORM\EntityManagerInterface;
 
 return [
   App::class =>
@@ -70,7 +71,7 @@ return [
   //   )
   // ),
 
-  EntityManager::class =>
+  EntityManagerInterface::class =>
   function (Config $config) {
     $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
       $config->get('doctrine.entity_dir'),
@@ -148,12 +149,12 @@ return [
   },
 
   Clockwork::class =>
-  function (EntityManager $entityManager) {
+  function (EntityManagerInterface $entityManager) {
     $clockwork = new Clockwork();
 
     $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
     $clockwork->addDataSource(new DoctrineDataSource($entityManager));
 
     return $clockwork;
-  }
+  },
 ];
