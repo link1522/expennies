@@ -28,8 +28,12 @@ use Symfony\Component\Asset\Package;
 use App\services\UserProviderService;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Asset\Packages;
+use App\services\EntityManagerService;
+use Doctrine\ORM\EntityManagerInterface;
+use Clockwork\DataSource\DoctrineDataSource;
 use Psr\Http\Message\ResponseFactoryInterface;
 use App\Contracts\UserProviderServiceInterface;
+use App\Contracts\EntityManagerServiceInterface;
 use App\RequestValidator\RequestValidatorFactory;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use League\Flysystem\Local\LocalFilesystemAdapter;
@@ -38,8 +42,6 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
-use Clockwork\DataSource\DoctrineDataSource;
-use Doctrine\ORM\EntityManagerInterface;
 
 return [
   App::class =>
@@ -157,4 +159,7 @@ return [
 
     return $clockwork;
   },
+
+  EntityManagerServiceInterface::class =>
+  fn (EntityManager $entityManager) => new EntityManagerService($entityManager)
 ];

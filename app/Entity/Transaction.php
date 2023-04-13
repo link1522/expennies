@@ -57,6 +57,7 @@ class Transaction
   public function __construct()
   {
     $this->receipts = new ArrayCollection();
+    $this->wasReviewed = false;
   }
 
   /**
