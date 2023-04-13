@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 interface EntityManagerServiceInterface
 {
-  public function __call(string $name, array $arguments): void;
+  public function __call(string $name, array $arguments);
 
   public function sync($entity = null): void;
 

@@ -161,5 +161,5 @@ return [
   },
 
   EntityManagerServiceInterface::class =>
-  fn (EntityManager $entityManager) => new EntityManagerService($entityManager)
+  fn (EntityManagerInterface $entityManager) => new EntityManagerService($entityManager)
 ];

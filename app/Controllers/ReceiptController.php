@@ -6,6 +6,7 @@ use Slim\Psr7\Stream;
 use App\services\ReceiptService;
 use League\Flysystem\Filesystem;
 use App\services\TransactionService;
+use App\Contracts\EntityManagerServiceInterface;
 use App\RequestValidator\RequestValidatorFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\RequestValidator\UploadReceiptRequestValidator;
@@ -17,7 +18,8 @@ class ReceiptController
     private readonly Filesystem $filesystem,
     private readonly RequestValidatorFactory $requestValidatorFactory,
     private readonly TransactionService $transactionService,
-    private readonly ReceiptService $receiptService
+    private readonly ReceiptService $receiptService,
+    private readonly EntityManagerServiceInterface $entityManagerService
   ) {
   }
   public function store(Request $request, Response $response, array $args): Response
@@ -37,8 +39,9 @@ class ReceiptController
 
     $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
 
-    $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType());
-    $this->receiptService->flush();
+    $receipt = $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType());
+
+    $this->entityManagerService->sync($receipt);
 
     return $response;
   }
@@ -89,8 +92,7 @@ class ReceiptController
 
     $this->filesystem->delete('receipts/' . $receipt->getStorageFilename());
 
-    $this->receiptService->delete($receipt);
-    $this->receiptService->flush();
+    $this->entityManagerService->delete($receipt, true);
 
     return $response;
   }

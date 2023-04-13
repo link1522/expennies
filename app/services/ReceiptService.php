@@ -7,10 +7,14 @@ namespace App\services;
 use DateTime;
 use App\Entity\Receipt;
 use App\Entity\Transaction;
-use App\services\EntityManagerService;
+use App\Contracts\EntityManagerServiceInterface;
 
-class ReceiptService extends EntityManagerService
+class ReceiptService
 {
+  public function __construct(private readonly EntityManagerServiceInterface $entityManager)
+  {
+  }
+
   public function create(Transaction $transaction, string $filename, string $storageFilename, string $mediaType): Receipt
   {
     $receipt = new Receipt();
@@ -21,18 +25,11 @@ class ReceiptService extends EntityManagerService
     $receipt->setMediaType($mediaType);
     $receipt->setCreatedAt(new DateTime());
 
-    $this->entityManager->persist($receipt);
-
     return $receipt;
   }
 
   public function getById(int $id): ?Receipt
   {
     return $this->entityManager->find(Receipt::class, $id);
-  }
-
-  public function delete(Receipt $receipt): void
-  {
-    $this->entityManager->remove($receipt);
   }
 }

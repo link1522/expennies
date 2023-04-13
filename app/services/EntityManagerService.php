@@ -13,7 +13,7 @@ class EntityManagerService implements EntityManagerServiceInterface
   {
   }
 
-  public function __call(string $name, array $arguments): void
+  public function __call(string $name, array $arguments)
   {
     if (method_exists($this->entityManager, $name)) {
       return call_user_func_array([$this->entityManager, $name], $arguments);
