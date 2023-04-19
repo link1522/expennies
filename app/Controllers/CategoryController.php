@@ -26,7 +26,7 @@ class CategoryController
   ) {
   }
 
-  public function index(Request $request, Response $response): Response
+  public function index(Response $response): Response
   {
     return $this->twig->render($response, 'categories/index.twig');
   }
@@ -45,23 +45,15 @@ class CategoryController
     return $response->withHeader('Location', '/categories')->withStatus(302);
   }
 
-  public function delete(Request $request, Response $response, array $args): Response
+  public function delete(Response $response, Category $category): Response
   {
-    $category = $this->categoryService->getById((int) $args['id']);
-
     $this->entityManagerService->delete($category, true);
 
     return $response;
   }
 
-  public function get(Request $request, Response $response, array $args): Response
+  public function get(Response $response, Category $category): Response
   {
-    $category = $this->categoryService->getById((int) $args['id']);
-
-    if (!$category) {
-      return $response->withStatus(404);
-    }
-
     $data = [
       'id' => $category->getId(),
       'name' => $category->getName(),
@@ -70,18 +62,12 @@ class CategoryController
     return $this->responseFormatter->asJson($response, $data);
   }
 
-  public function update(Request $request, Response $response, array $args): Response
+  public function update(Request $request, Response $response, Category $category): Response
   {
     $data =
       $this->requestValidatorFactory
       ->make(UpdateCategoryRequestValidator::class)
-      ->validate($args + $request->getParsedBody());
-
-    $category = $this->categoryService->getById((int) $data['id']);
-
-    if (!$category) {
-      return $response->withStatus(404);
-    }
+      ->validate($request->getParsedBody());
 
     $this->entityManagerService->sync($this->categoryService->update($category, $data['name']));
 

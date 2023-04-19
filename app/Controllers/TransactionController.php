@@ -29,7 +29,7 @@ class TransactionController
   ) {
   }
 
-  public function index(Request $request, Response $response): Response
+  public function index(Response $response): Response
   {
     return $this->twig->render(
       $response,
@@ -60,23 +60,15 @@ class TransactionController
     return $response;
   }
 
-  public function delete(Request $request, Response $response, array $args): Response
+  public function delete(Response $response, Transaction $transaction): Response
   {
-    $transaction = $this->transactionService->getById((int) $args['id']);
-
     $this->entityManagerService->delete($transaction, true);
 
     return $response;
   }
 
-  public function get(Request $request, Response $response, array $args): Response
+  public function get(Response $response, Transaction $transaction): Response
   {
-    $transaction = $this->transactionService->getById((int) $args['id']);
-
-    if (!$transaction) {
-      return $response->withStatus(404);
-    }
-
     $data = [
       'id' => $transaction->getId(),
       'description' => $transaction->getDescription(),
@@ -88,18 +80,12 @@ class TransactionController
     return $this->responseFormatter->asJson($response, $data);
   }
 
-  public function update(Request $request, Response $response, array $args): Response
+  public function update(Request $request, Response $response, Transaction $transaction): Response
   {
     $data =
       $this->requestValidatorFactory
       ->make(TransactionRequestValidator::class)
-      ->validate($args + $request->getParsedBody());
-
-    $id = (int) $data['id'];
-
-    if (!$id || !($transaction = $this->transactionService->getById($id))) {
-      return $response->withStatus(404);
-    }
+      ->validate($request->getParsedBody());
 
     $this->entityManagerService->sync($this->transactionService->update(
       $transaction,
@@ -144,16 +130,9 @@ class TransactionController
     );
   }
 
-  public function toggleReviewed(Request $request, Response $response, array $args): Response
+  public function toggleReviewed(Response $response, Transaction $transaction): Response
   {
-    $id = (int) $args['id'];
-
-    if (!$id || !($transation = $this->transactionService->getById($id))) {
-      return $response->withStatus(404);
-    }
-
-    $this->transactionService->toggleReviewed($transation);
-
+    $this->transactionService->toggleReviewed($transaction);
     $this->entityManagerService->sync();
 
     return $response;

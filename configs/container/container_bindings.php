@@ -42,6 +42,7 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use App\RouteEntityBindingStrategy;
 
 return [
   App::class =>
@@ -52,6 +53,13 @@ return [
     $router = require CONFIG_PATH . '/routes/web.php';
 
     $app = AppFactory::create();
+
+    $app->getRouteCollector()->setDefaultInvocationStrategy(
+      new RouteEntityBindingStrategy(
+        $container->get(EntityManagerServiceInterface::class),
+        $app->getResponseFactory()
+      )
+    );
 
     $router($app);
     $addMiddlewares($app);
