@@ -39,6 +39,7 @@ use Symfony\Bridge\Twig\Extension\AssetExtension;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\Filters\UserFilter;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
@@ -87,6 +88,8 @@ return [
       $config->get('doctrine.entity_dir'),
       $config->get('doctrine.dev_mode')
     );
+
+    $ormConfig->addFilter('user', UserFilter::class);
 
     return new EntityManager(
       DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
