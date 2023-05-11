@@ -33,6 +33,9 @@ class User implements UserInterface
   #[Column]
   private string $password;
 
+  #[Column(name: 'verified_at', nullable: true)]
+  private ?DateTime $verifiedAt;
+
   #[Column]
   private string $name;
 
@@ -165,5 +168,23 @@ class User implements UserInterface
   public function canManage(OwnableInterface $entity): bool
   {
     return $this->getId() === $entity->getUser()->getId();
+  }
+
+  /**
+   * @return 
+   */
+  public function getVerifiedAt(): ?DateTime
+  {
+    return $this->verifiedAt;
+  }
+
+  /**
+   * @param  $verifiedAt 
+   * @return self
+   */
+  public function setVerifiedAt(?DateTime $verifiedAt): self
+  {
+    $this->verifiedAt = $verifiedAt;
+    return $this;
   }
 }

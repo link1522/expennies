@@ -14,6 +14,7 @@ use function DI\create;
 use Clockwork\Clockwork;
 use Doctrine\ORM\ORMSetup;
 use App\Enum\StorageDriver;
+use App\Filters\UserFilter;
 use App\Enum\AppEnvironment;
 use Slim\Factory\AppFactory;
 use Doctrine\ORM\EntityManager;
@@ -24,26 +25,30 @@ use App\DataObjects\SessionConfig;
 use Clockwork\Storage\FileStorage;
 use Twig\Extra\Intl\IntlExtension;
 use App\Contracts\SessionInterface;
+use App\RouteEntityBindingStrategy;
 use Symfony\Component\Asset\Package;
+use Symfony\Component\Mailer\Mailer;
 use App\services\UserProviderService;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Asset\Packages;
 use App\services\EntityManagerService;
+use Symfony\Component\Mailer\Transport;
 use Doctrine\ORM\EntityManagerInterface;
 use Clockwork\DataSource\DoctrineDataSource;
+use Symfony\Component\Mailer\MailerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\Contracts\EntityManagerServiceInterface;
 use App\RequestValidator\RequestValidatorFactory;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Component\Mime\BodyRendererInterface;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use App\Contracts\RequestValidatorFactoryInterface;
-use App\Filters\UserFilter;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
-use App\RouteEntityBindingStrategy;
+use Symfony\Bridge\Twig\Mime\BodyRenderer;
 
 return [
   App::class =>
@@ -172,5 +177,15 @@ return [
   },
 
   EntityManagerServiceInterface::class =>
-  fn (EntityManagerInterface $entityManager) => new EntityManagerService($entityManager)
+  fn (EntityManagerInterface $entityManager) => new EntityManagerService($entityManager),
+
+  MailerInterface::class =>
+  function (Config $config) {
+    $transport = Transport::fromDsn($config->get('mailer.dsn'));
+
+    return new Mailer($transport);
+  },
+
+  BodyRendererInterface::class =>
+  fn (Twig $twig) => new BodyRenderer($twig->getEnvironment())
 ];
