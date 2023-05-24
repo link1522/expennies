@@ -45,6 +45,7 @@ use Symfony\Component\Mime\BodyRendererInterface;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
 use App\Contracts\RequestValidatorFactoryInterface;
+use Slim\Interfaces\RouteParserInterface;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
@@ -187,5 +188,8 @@ return [
   },
 
   BodyRendererInterface::class =>
-  fn (Twig $twig) => new BodyRenderer($twig->getEnvironment())
+  fn (Twig $twig) => new BodyRenderer($twig->getEnvironment()),
+
+  RouteParserInterface::class =>
+  fn (App $app) => $app->getRouteCollector()->getRouteParser()
 ];

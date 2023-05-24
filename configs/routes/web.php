@@ -13,6 +13,7 @@ use App\Controllers\ReceiptController;
 use App\Controllers\CategoryController;
 use App\Controllers\TransactionController;
 use App\Controllers\TransactionImportController;
+use App\Middleware\ValidateSignatureMiddleware;
 use App\Middleware\VerifyEmailMiddleware;
 
 return function (App $app) {
@@ -47,6 +48,9 @@ return function (App $app) {
   $app->group('', function (RouteCollectorProxy $group) {
     $group->post('/logout', [AuthController::class, 'logout']);
     $group->get('/verify', [VerifyController::class, 'index']);
+    $group->get('/verify/{id}/{hash}', [VerifyController::class, 'verify'])
+      ->setName('verify')
+      ->add(ValidateSignatureMiddleware::class);
   })->add(AuthMiddleware::class);
 
   $app->group('', function (RouteCollectorProxy $guest) {
